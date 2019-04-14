@@ -8,4 +8,11 @@ add_library(udpService SHARED   udpService/udpService.h
                                 udpService/udpMonitor.c
                                 udpService/udpMonitor.h)
 
-add_executable(ptp_proto udpService udpClientTest.c)
+add_executable(udpClient.out udpClientTest.c)
+
+add_executable(udpServer.out udpServerTest.c)
+
+
+target_link_libraries(udpServer.out udpService)
+
+target_link_libraries(udpClient.out udpService)

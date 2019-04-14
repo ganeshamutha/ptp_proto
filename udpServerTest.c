@@ -23,7 +23,7 @@ int main() {
 
     udp_service_create(&uServer, UDP_SERVICE_SERVER_UNICAST, PTP_MASTER_IP_1, PTP_MASTER_PORT_1, msg_handler_cb);
 
-    udp_service_send_msg();
+    //udp_service_send_msg();
 
     udp_service_deInit();
 
