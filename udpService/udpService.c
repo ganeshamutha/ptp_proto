@@ -98,7 +98,9 @@ udpServiceErrorCode_t udp_service_deInit(){
 
 }
 
-udpServiceErrorCode_t udp_service_create(udpService_t **udpService, e_udpService_t type, char *ip, int port, udp_msg_notifier notifier_t) {
+udpServiceErrorCode_t udp_service_create(udpService_t **udpService, 
+                                         e_udpService_t type, char *ip, int port,
+                                         udp_msg_notifier notifier_t) {
 
     int sockId = 0;
 
@@ -114,7 +116,9 @@ udpServiceErrorCode_t udp_service_create(udpService_t **udpService, e_udpService
 
     //copy port and IP.
     p_udpService->port = port;
-    strcpy(p_udpService->ip , ip);
+    if (ip != NULL) {
+         strcpy(p_udpService->ip , ip);
+    }
 
     //Create Socket as per type.
     sockId = socket(AF_INET, SOCK_DGRAM, 0);
@@ -142,6 +146,8 @@ udpServiceErrorCode_t udp_service_create(udpService_t **udpService, e_udpService
 
             p_udpService->msgNotifier = notifier_t;
             server_unicast(p_udpService->sockId, p_udpService->port);
+            register_event_notifier(p_udpService);
+
             break;
 
         case UDP_SERVICE_CLIENT_UNICAST:
