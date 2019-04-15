@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
 #include "udpService.h"
 
@@ -169,8 +171,6 @@ udpServiceErrorCode_t udp_service_create(udpService_t **udpService, e_udpService
 
     }
 
-
-
     //Update
     *udpService = p_udpService;
 
@@ -180,6 +180,49 @@ udpServiceErrorCode_t udp_service_create(udpService_t **udpService, e_udpService
 }
 
 
-udpServiceErrorCode_t udp_service_destroy(udpService_t *udpService);
+udpServiceErrorCode_t udp_service_destroy(udpService_t *p_udpService){
+    
+    udpServiceErrorCode_t e_Code = E_UDP_SERVICE_ERROR_NONE;
 
-udpServiceErrorCode_t udp_service_send_msg(void* msg, char *ip);
+    if(p_udpService == NULL) {
+        return E_UDP_SERVICE_INVALID_PARAM;
+    }
+
+    //
+    close(p_udpService->sockId);
+
+    free(p_udpService);
+
+    return e_Code;
+}
+
+
+udpServiceErrorCode_t udp_service_send_msg(udpService_t *p_udpService, void* msg, int len, char *ip){
+    
+    udpServiceErrorCode_t   e_Code = E_UDP_SERVICE_ERROR_NONE;
+
+    struct sockaddr_in servaddr; 
+    int retValue = 0;
+
+    if(msg == NULL || ip == NULL || p_udpService == NULL || len <= 0){
+        e_Code = E_UDP_SERVICE_INVALID_PARAM;
+        return e_Code;
+    }
+
+    servaddr.sin_addr.s_addr = inet_addr(ip); 
+    servaddr.sin_port = htons(p_udpService->port); 
+    servaddr.sin_family = AF_INET; 
+
+    retValue = sendto(p_udpService->sockId, msg, len, 0, (struct sockaddr*) &servaddr, sizeof(servaddr)) ;
+    if(retValue == -1){
+        perror("Error on Sending message ");
+        printf("Sending message failed %d \n", errno);
+
+        e_Code = E_UDP_SERVICE_ERR_SEND_FAILED;
+        return e_Code;
+    }
+
+    //On Success
+
+    return e_Code;
+}
